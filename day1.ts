@@ -1,5 +1,5 @@
 import fs from "node:fs";
-const raw = fs.readFileSync("test2.txt").toString();
+const raw = fs.readFileSync("day1-data.txt").toString();
 const rows = raw.split("\n");
 const l1Raw: number[] = [];
 const l2Raw: number[] = [];
