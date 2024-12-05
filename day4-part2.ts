@@ -39,6 +39,7 @@ function findFromSquare(grid: string[][], x: number, y: number) {
 	}
 	return masesFromSquare;
 }
+
 const parsedGrid = parseGrid(data);
 const middles: [number, number][] = [];
 
@@ -59,5 +60,5 @@ for (const middle of middles) {
 	}
 
 }
-console.log({ middles });
+
 console.log(`${sum} found in ${parsedGrid[0].length}x${parsedGrid.length}`);
