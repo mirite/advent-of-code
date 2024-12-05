@@ -14,12 +14,11 @@ function parseGrid(input: string) {
 	return grid;
 }
 
-const target = ["X", "M", "A", "S"];
-const deltas = [1, 0, -1] as const;
+const target = ["M", "A", "S"];
+const deltas = [1, -1] as const;
 type Delta = typeof deltas[number];
 function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta, index = 0) {
 	if (index === target.length) {
-		console.log("Match!");
 		return true;
 	}
 	if (!grid[y] || !grid[y][x] || target[index] !== grid[y][x]) {
@@ -30,22 +29,35 @@ function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta,
 }
 
 function findFromSquare(grid: string[][], x: number, y: number) {
-	let sum = 0;
+	const masesFromSquare: [number, number][] = [];
 	for (const dy of deltas) {
 		for (const dx of deltas) {
-			if (dx === 0 && dy === 0) continue;
 			if (findWords(grid, x, y, dx, dy)) {
-				sum++;
+				masesFromSquare.push([x + dx, y + dy]);
 			}
 		}
 	}
-	return sum;
+	return masesFromSquare;
 }
 const parsedGrid = parseGrid(data);
-let sum = 0;
+const middles: [number, number][] = [];
+
 for (let y = 0; y < parsedGrid.length; y++) {
 	for (let x = 0; x < parsedGrid[y].length; x++) {
-		sum += findFromSquare(parsedGrid, x, y);
+		middles.push(...findFromSquare(parsedGrid, x, y));
 	}
 }
+
+const uniques: [number, number][] = [];
+let sum = 0;
+for (const middle of middles) {
+	const existing = uniques.find(([x, y]) => x === middle[0] && y === middle[1]);
+	if (existing) {
+		sum++;
+	} else {
+		uniques.push(middle);
+	}
+
+}
+console.log({ middles });
 console.log(`${sum} found in ${parsedGrid[0].length}x${parsedGrid.length}`);
