@@ -16,4 +16,12 @@ for (const line of lines) {
 	}
 }
 
-console.log({ rules, updates });
+function testUpdate(update: Update): boolean {
+	const applicableRules = rules.filter(([a, b]) => update.includes(a) && update.includes(b));
+	return applicableRules.every(([a, b]) => update.findIndex(i => i === b) > update.findIndex(i => i === a));
+}
+
+const correctlyOrdered = updates.filter(testUpdate);
+const middles = correctlyOrdered.map(row => row[Math.floor(row.length / 2)]);
+const sum = middles.reduce((acc, curr) => curr + acc, 0);
+console.log(sum);
