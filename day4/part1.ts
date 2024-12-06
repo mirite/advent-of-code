@@ -16,8 +16,15 @@ function parseGrid(input: string) {
 
 const target = ["X", "M", "A", "S"];
 const deltas = [1, 0, -1] as const;
-type Delta = typeof deltas[number];
-function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta, index = 0) {
+type Delta = (typeof deltas)[number];
+function findWords(
+	grid: string[][],
+	x: number,
+	y: number,
+	dx: Delta,
+	dy: Delta,
+	index = 0,
+) {
 	if (index === target.length) {
 		console.log("Match!");
 		return true;
@@ -26,7 +33,6 @@ function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta,
 		return false;
 	}
 	return findWords(grid, x + dx, y + dy, dx, dy, index + 1);
-
 }
 
 function findFromSquare(grid: string[][], x: number, y: number) {

@@ -13,7 +13,7 @@ const list2 = l2Raw.toSorted();
 
 let sum = 0;
 for (let i = 0; i < list1.length - 1; i++) {
-	const matches = list2.filter(n => n === list1[i]);
+	const matches = list2.filter((n) => n === list1[i]);
 	sum += Math.abs(list1[i] * matches.length);
 }
-console.log(sum)
+console.log(sum);

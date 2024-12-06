@@ -16,8 +16,15 @@ function parseGrid(input: string) {
 
 const target = ["M", "A", "S"];
 const deltas = [1, -1] as const;
-type Delta = typeof deltas[number];
-function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta, index = 0) {
+type Delta = (typeof deltas)[number];
+function findWords(
+	grid: string[][],
+	x: number,
+	y: number,
+	dx: Delta,
+	dy: Delta,
+	index = 0,
+) {
 	if (index === target.length) {
 		return true;
 	}
@@ -25,7 +32,6 @@ function findWords(grid: string[][], x: number, y: number, dx: Delta, dy: Delta,
 		return false;
 	}
 	return findWords(grid, x + dx, y + dy, dx, dy, index + 1);
-
 }
 
 function findFromSquare(grid: string[][], x: number, y: number) {
@@ -58,7 +64,6 @@ for (const middle of middles) {
 	} else {
 		uniques.push(middle);
 	}
-
 }
 
 console.log(`${sum} found in ${parsedGrid[0].length}x${parsedGrid.length}`);

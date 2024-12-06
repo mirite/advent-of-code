@@ -1,8 +1,19 @@
 {
-  "name": "advent-of-code-2024",
-  "packageManager": "yarn@4.5.3",
-  "dependencies": {
-    "@types/node": "^22.10.1",
-    "typescript": "^5.7.2"
-  }
+	"name": "@mirite/advent-of-code-2024",
+	"packageManager": "yarn@4.5.3",
+	"author": {
+		"name": "Jesse Conner",
+		"email": "me@jesseconner.ca"
+	},
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"format": "prettier . --write"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.1",
+		"prettier": "*",
+		"typescript": "^5.7.2"
+	}
 }
