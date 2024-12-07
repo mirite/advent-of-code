@@ -60,16 +60,17 @@ function isStuck(guardPosition: GuardPosition, visited: GuardPosition[]) {
 	);
 }
 
-(function () {
-	const dataString = fs.readFileSync("sample-data.txt").toString();
-	const { grid, guardPosition } = parseGrid(dataString);
-
+function solveGrid(
+	guardPosition: GuardPosition,
+	grid: Grid,
+	includeValidation = false,
+): boolean | [x: number, y: number][] {
 	const visited: GuardPosition[] = [[...guardPosition]];
 	const gridSize = { width: grid[0].length, height: grid.length };
 
-	let dx = 0;
-	let dy = 0;
 	while (true) {
+		let dx = 0;
+		let dy = 0;
 		switch (guardPosition[2]) {
 			case 0:
 				dy = -1;
@@ -89,21 +90,49 @@ function isStuck(guardPosition: GuardPosition, visited: GuardPosition[]) {
 		if (!inGrid([nextX, nextY], gridSize)) {
 			break;
 		} else if (isObstacle(nextX, nextY, grid)) {
-			console.log(
-				`Turning from ${guardPosition[2]} because of obstacle at ${nextX},${nextY}`,
-			);
 			if (guardPosition[2] === 3) guardPosition[2] = 0;
 			else guardPosition[2]++;
 		} else {
 			guardPosition[0] = nextX;
 			guardPosition[1] = nextY;
+
+			if (isStuck(guardPosition, visited)) {
+				return false;
+			}
 			visited.push([...guardPosition]);
-			console.log(`Moved to ${nextX},${nextY}`);
-		}
-		if (isStuck(guardPosition, visited)) {
-			console.log("Stuck!");
-			break;
 		}
 	}
-	console.log(visited.length);
+	if (!includeValidation) return true;
+	const output: [number, number][] = [];
+	for (const p of visited) {
+		if (!output.some(([x, y]) => x === p[0] && y === p[1])) {
+			output.push([p[0], p[1]]);
+		}
+	}
+
+	return output;
+}
+(function () {
+	const dataString = fs.readFileSync("data.txt").toString();
+	const { grid, guardPosition } = parseGrid(dataString);
+	let sum = 0;
+	const basePath = solveGrid([...guardPosition], grid, true);
+
+	if (typeof basePath === "boolean")
+		throw new Error("Expected to solve base path");
+	console.log(`Found ${basePath.length} unique squares`);
+	for (let i = 0; i < basePath.length; i++) {
+		const [x, y] = basePath[i];
+		if (
+			isObstacle(x, y, grid) ||
+			(x === guardPosition[0] && y === guardPosition[1])
+		) {
+			continue;
+		}
+		console.log(`Testing obstacle position ${i} of ${basePath.length}`);
+		const tempGrid = structuredClone(grid);
+		tempGrid[y][x] = false;
+		if (!solveGrid([...guardPosition], tempGrid)) sum++;
+	}
+	console.log(sum);
 })();
