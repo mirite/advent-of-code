@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import { type } from "node:os";
 type Equation = [expected: number, constituants: number[]];
 type Equations = Equation[];
 type Operation = (typeof operations)[number];
