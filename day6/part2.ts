@@ -113,6 +113,7 @@ function solveGrid(
 	return output;
 }
 (function () {
+	const start = new Date().getTime();
 	const dataString = fs.readFileSync("data.txt").toString();
 	const { grid, guardPosition } = parseGrid(dataString);
 	let sum = 0;
@@ -129,10 +130,11 @@ function solveGrid(
 		) {
 			continue;
 		}
-		console.log(`Testing obstacle position ${i} of ${basePath.length}`);
+		//		console.log(`Testing obstacle position ${i} of ${basePath.length}`);
 		const tempGrid = structuredClone(grid);
 		tempGrid[y][x] = false;
 		if (!solveGrid([...guardPosition], tempGrid)) sum++;
 	}
 	console.log(sum);
+	console.log(`Done in ${new Date().getTime() - start}`);
 })();
