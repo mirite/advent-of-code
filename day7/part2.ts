@@ -48,22 +48,20 @@ function buildPossible(length: number): Operation[][] {
 	return possibleSolutions;
 }
 
+function performOperations(equation: Equation, operations: Operation[]) {
+	let acc = equation[1][0];
+	for (let i = 0; i < operations.length; i++) {
+		acc = operations[i](acc, equation[1][i + 1]);
+	}
+	return acc;
+}
 function getSolutionCount(equation: Equation): number {
 	const possibleSolutions = buildPossible(equation[1].length - 1);
 	let solutions = 0;
-	const expectedCount = Math.pow(operations.length, equation[1].length - 1);
-	if (possibleSolutions.length != expectedCount)
-		throw new Error(
-			`Incorrect number of equations generated. Got ${possibleSolutions.length}, expected ${expectedCount}`,
-		);
 	for (const option of possibleSolutions) {
-		let acc = equation[1][0];
-		for (let i = 0; i < option.length; i++) {
-			acc = option[i](acc, equation[1][i + 1]);
-		}
+		const acc = performOperations(equation, option);
 		if (acc === equation[0]) solutions++;
 	}
-	console.log({ solutions });
 	return solutions;
 }
 
@@ -72,8 +70,9 @@ function getSolutionCount(equation: Equation): number {
 	const equations = parse(dataString);
 	let sum = 0;
 
-	for (const equation of equations) {
-		if (getSolutionCount(equation)) sum += equation[0];
+	for (let i = 0; i < equations.length; i++) {
+		console.log(`Testing ${i + 1} of ${equations.length}`);
+		if (getSolutionCount(equations[i])) sum += equations[i][0];
 	}
 	console.log(sum);
 })();
