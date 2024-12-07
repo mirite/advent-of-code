@@ -14,7 +14,7 @@ const replacements = [
 
 function replaceStrings(raw: string): string {
 	for (let i = 0; i < raw.length; i++) {
-		const sliding = raw.slice(i, i + 6);
+		const sliding = raw.substring(i, i + 5);
 		for (const [spelled, numeric] of replacements) {
 			if (sliding.startsWith(spelled)) {
 				raw = raw.substring(0, i) + numeric + raw.substring(i + spelled.length);
@@ -26,7 +26,7 @@ function replaceStrings(raw: string): string {
 }
 
 (function () {
-	const raw = fs.readFileSync("sample-data-2.txt").toString();
+	const raw = fs.readFileSync("data.txt").toString();
 	let sum = 0;
 	let firstInLine = 0;
 	let lastInLine = 0;
