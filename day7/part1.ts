@@ -28,18 +28,25 @@ function multiply(a: number, b: number) {
 
 const operations = [add, multiply] as const;
 
-function isRowSolvable(equation: Equation): boolean {
+function buildPossible(length: number): Operation[][] {
+	if (length === 0) return [];
 	const possibleSolutions: Operation[][] = []; // The items in operations should be arrays of operators equal to the number of gaps in the equation.
-	for (let i = 0; i < equation[1].length - 1; i++) {
-		const possibleSolution: Operation[] = [];
-		for (const operation of operations) {
-			for (let j = 0; j < equation[1].length - 1; j++) {
-				possibleSolution.push(operation);
+	for (const operation of operations) {
+		if (length > 1) {
+			const possibleFutures = buildPossible(length - 1);
+			for (const possibleFuture of possibleFutures) {
+				possibleSolutions.push([operation, ...possibleFuture]);
 			}
+		} else {
+			possibleSolutions.push([operation]);
 		}
-		possibleSolutions.push(possibleSolution);
 	}
-	console.log({ possibleSolutions });
+	return possibleSolutions;
+}
+
+function getSolutionCount(equation: Equation): number {
+	const possibleSolutions = buildPossible(equation[1].length - 1);
+	let solutions = 0;
 	const expectedCount = Math.pow(2, equation[1].length - 1);
 	if (possibleSolutions.length != expectedCount)
 		throw new Error(
@@ -50,13 +57,19 @@ function isRowSolvable(equation: Equation): boolean {
 		for (let i = 0; i < option.length; i++) {
 			acc = option[i](acc, equation[1][i + 1]);
 		}
+		if (acc === equation[0]) solutions++;
 	}
-	return true;
+	console.log({ solutions });
+	return solutions;
 }
 
 (function () {
 	const dataString = fs.readFileSync("sample-data.txt").toString();
 	const equations = parse(dataString);
-	const solvable = equations.filter(isRowSolvable);
-	console.log(equations);
+	let sum = 0;
+
+	for (const equation of equations) {
+		if (getSolutionCount(equation)) sum += equation[0];
+	}
+	console.log(sum);
 })();
