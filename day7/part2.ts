@@ -26,7 +26,11 @@ function multiply(a: number, b: number) {
 	return a * b;
 }
 
-const operations = [add, multiply] as const;
+function concat(a: number, b: number) {
+	return Number.parseInt(String(a) + String(b));
+}
+
+const operations = [add, multiply, concat] as const;
 
 function buildPossible(length: number): Operation[][] {
 	if (length === 0) return [];
@@ -47,7 +51,7 @@ function buildPossible(length: number): Operation[][] {
 function getSolutionCount(equation: Equation): number {
 	const possibleSolutions = buildPossible(equation[1].length - 1);
 	let solutions = 0;
-	const expectedCount = Math.pow(2, equation[1].length - 1);
+	const expectedCount = Math.pow(operations.length, equation[1].length - 1);
 	if (possibleSolutions.length != expectedCount)
 		throw new Error(
 			`Incorrect number of equations generated. Got ${possibleSolutions.length}, expected ${expectedCount}`,
@@ -64,7 +68,7 @@ function getSolutionCount(equation: Equation): number {
 }
 
 (function () {
-	const dataString = fs.readFileSync("sample-data.txt").toString();
+	const dataString = fs.readFileSync("data.txt").toString();
 	const equations = parse(dataString);
 	let sum = 0;
 
