@@ -64,7 +64,7 @@ function getSolutionCount(equation: Equation): number {
 }
 
 (function () {
-	const dataString = fs.readFileSync("sample-data.txt").toString();
+	const dataString = fs.readFileSync("data.txt").toString();
 	const equations = parse(dataString);
 	let sum = 0;
 
