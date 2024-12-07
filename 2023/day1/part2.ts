@@ -12,24 +12,29 @@ const replacements = [
 	["nine", "9"],
 ];
 
+function replaceStrings(raw: string): string {
+	for (let i = 0; i < raw.length; i++) {
+		const sliding = raw.slice(i, i + 6);
+		for (const [spelled, numeric] of replacements) {
+			if (sliding.startsWith(spelled)) {
+				raw = raw.substring(0, i) + numeric + raw.substring(i + spelled.length);
+				i -= spelled.length - 1;
+			}
+		}
+	}
+	return raw;
+}
+
 (function () {
-	let raw = fs.readFileSync("sample-data-2.txt").toString();
+	const raw = fs.readFileSync("sample-data-2.txt").toString();
 	let sum = 0;
 	let firstInLine = 0;
 	let lastInLine = 0;
-	for (const [text, number] of replacements) {
-		raw = raw.replaceAll(text, number);
-	}
-	console.log({ raw });
-	for (let i = 0; i < raw.length; i++) {
-		const current = raw.charCodeAt(i);
+	const converted = replaceStrings(raw);
+	for (let i = 0; i < converted.length; i++) {
+		const current = converted.charCodeAt(i);
 		if (current === 10) {
 			sum += firstInLine * 10 + (lastInLine || firstInLine);
-			console.log({
-				firstInLine,
-				lastInLine,
-				value: firstInLine * 10 + (lastInLine || firstInLine),
-			});
 			firstInLine = 0;
 			lastInLine = 0;
 		} else if (current >= 49 && current <= 57) {
