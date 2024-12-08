@@ -44,26 +44,29 @@ function parseGrid(raw: string): Game[] {
 		} else if (mode === Mode.ReadingQuantity) {
 			if (isNumeral(curr)) {
 				buffer += curr;
-			} else {
+			} else if (buffer !== "") {
 				mode = Mode.ReadingColour;
 			}
 		} else if (mode === Mode.ReadingColour) {
 			if (isLetter(curr)) {
 				colourBuffer += curr;
-			} else if (colourBuffer != "") {
+			} else if (colourBuffer !== "") {
+				console.log({ buffer, colourBuffer });
 				currentSet[colourBuffer as keyof CubeSet] = Number.parseInt(buffer);
 				buffer = "";
 				colourBuffer = "";
 				if (curr === ",") {
 					mode = Mode.ReadingQuantity;
-				} else if (curr === ";") {
+				} else {
 					currentGame.cubeSets.push(currentSet);
 					currentSet = { red: 0, green: 0, blue: 0 };
-					mode = Mode.StartingSet;
-				} else {
-					games.push(currentGame);
-					currentGame = { id: 0, cubeSets: [] };
-					mode = Mode.ReadingId;
+					if (curr === ";") {
+						mode = Mode.StartingSet;
+					} else {
+						games.push(currentGame);
+						currentGame = { id: 0, cubeSets: [] };
+						mode = Mode.ReadingId;
+					}
 				}
 			}
 		}
