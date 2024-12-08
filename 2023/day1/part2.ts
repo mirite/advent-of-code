@@ -35,21 +35,14 @@ function replaceStrings(raw: string): string {
 	for (let i = 0; i < converted.length; i++) {
 		const current = converted.charCodeAt(i);
 		if (current === 10) {
-			sum += firstInLine * 10 + (lastInLine || firstInLine);
-			console.log({
-				line: rawLines.shift(),
-				firstInLine,
-				lastInLine,
-				sum: firstInLine * 10 + (lastInLine || firstInLine),
-			});
+			sum += firstInLine * 10 + lastInLine;
 			firstInLine = 0;
 			lastInLine = 0;
-		} else if (current >= 49 && current <= 57) {
+		} else if (current > 48 && current < 58) {
 			if (!firstInLine) {
 				firstInLine = current - 48;
-			} else {
-				lastInLine = current - 48;
 			}
+			lastInLine = current - 48;
 		}
 	}
 	console.log(sum);
