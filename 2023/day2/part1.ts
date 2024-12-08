@@ -12,12 +12,14 @@ const Mode = {
 };
 
 function isNumeral(char: string) {
-	return char >= "1" && char <= "9";
+	return char >= "0" && char <= "9";
 }
 
 function isLetter(char: string) {
 	return char >= "a" && char <= "z";
 }
+
+const cubesInBag = { red: 12, green: 13, blue: 14 };
 
 function parseGrid(raw: string): Game[] {
 	const games: Game[] = [];
@@ -51,7 +53,6 @@ function parseGrid(raw: string): Game[] {
 			if (isLetter(curr)) {
 				colourBuffer += curr;
 			} else if (colourBuffer !== "") {
-				console.log({ buffer, colourBuffer });
 				currentSet[colourBuffer as keyof CubeSet] = Number.parseInt(buffer);
 				buffer = "";
 				colourBuffer = "";
@@ -74,7 +75,22 @@ function parseGrid(raw: string): Game[] {
 	return games;
 }
 (function () {
-	const raw = fs.readFileSync("sample-data.txt").toString();
+	const raw = fs.readFileSync("data.txt").toString();
 	const parsed = parseGrid(raw);
-	console.dir(parsed, { depth: 5 });
+	let sum = 0;
+
+	game: for (const game of parsed) {
+		console.dir(game, { depth: 3 });
+		for (const cubeSet of game.cubeSets) {
+			if (
+				cubeSet.green > cubesInBag.green ||
+				cubeSet.blue > cubesInBag.blue ||
+				cubeSet.red > cubesInBag.red
+			) {
+				continue game;
+			}
+		}
+		sum += game.id;
+	}
+	console.dir(sum);
 })();
