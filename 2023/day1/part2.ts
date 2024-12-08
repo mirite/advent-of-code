@@ -26,7 +26,6 @@ function replaceStrings(raw: string): string {
 
 (function () {
 	const raw = fs.readFileSync("data.txt").toString();
-	const rawLines = raw.split("\n");
 
 	let sum = 0;
 	let firstInLine = 0;
