@@ -133,12 +133,17 @@ function isAntiNode(grouped: Record<string, NodeWithDistance[]>): boolean {
 	const raw = fs.readFileSync("sample-data.txt").toString();
 	const grid = readGrid(raw);
 	printGrid(grid);
+	const gridWithAntiNodes = structuredClone(grid);
 	//const nodes = getNodes(grid);
 	for (let x = 0; x < grid.length; x++) {
 		for (let y = 0; y < grid[0].length; y++) {
 			const nodesInLine = getNodesInLine(grid, x, y);
 			const grouped = groupNodesByFrequency(nodesInLine);
-			if (isAntiNode(grouped)) console.log(`Anti-node at ${x},${y}`);
+			if (isAntiNode(grouped)) {
+				if (!gridWithAntiNodes[x][y]) gridWithAntiNodes[x][y] = [];
+				gridWithAntiNodes[x][y]?.push({ x, y, frequency: "#" });
+			}
 		}
 	}
+	printGrid(gridWithAntiNodes);
 })();
