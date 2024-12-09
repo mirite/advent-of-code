@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 type Node = { frequency: string; x: number; y: number };
 type Grid = (null | Node[])[][];
+type NodeWithDistance = Node & { distance: number };
 
 function readGrid(raw: string): Grid {
 	let output: Grid = [];
@@ -61,39 +62,72 @@ function printGrid(grid: Grid): void {
 	}
 	console.log("  0 1 2 3 4 5 6 7 8 9 1011\n" + lines.join("\n"));
 }
-function getNodesInLine(grid: Grid, xCoord: number, yCoord: number): Node[] {
+function getNodesInLine(
+	grid: Grid,
+	xCoord: number,
+	yCoord: number,
+): NodeWithDistance[] {
 	const width = grid.length;
 	const height = grid[0].length;
-	const output: Node[] = [];
+	const output: NodeWithDistance[] = [];
 	for (const vector of vectors) {
-		// TODO: This needs to take into account that x,y could have nodes in line with it on opposite vectors.
-		const nodesOnLine: Node[] = [];
+		const nodesOnLine: NodeWithDistance[] = [];
 		let x = xCoord + vector.dx;
 		let y = yCoord + vector.dy;
+		let i = 0;
 		while (
 			x + vector.dx > 0 &&
 			x + vector.dx < width &&
 			y + vector.dy > 0 &&
 			y + vector.dy < height
 		) {
+			i++;
 			const current = grid[x][y];
 			if (current) {
 				for (const nodeInCell of current) {
-					nodesOnLine.push(nodeInCell);
+					nodesOnLine.push({ ...nodeInCell, distance: i });
 				}
 			}
 			x += vector.dx;
 			y += vector.dy;
 		}
-
-		for (const nodeOnLine of nodesOnLine) {
-		}
+		output.push(...nodesOnLine);
 	}
 
 	return output;
 }
 
-function getDistanceBetweenNodes(nodeA: Node, nodeB: Node): number {}
+function groupNodesByFrequency(
+	nodesInLine: NodeWithDistance[],
+): Record<string, NodeWithDistance[]> {
+	const grouped: Record<string, NodeWithDistance[]> = {};
+	for (const node of nodesInLine) {
+		if (!grouped[node.frequency]) {
+			grouped[node.frequency] = [];
+		}
+		grouped[node.frequency].push(node);
+	}
+	return grouped;
+}
+
+function isAntiNode(grouped: Record<string, NodeWithDistance[]>): boolean {
+	for (const frequencySet of Object.values(grouped)) {
+		const distances: number[] = [];
+		for (const node of frequencySet) {
+			distances.push(node.distance);
+		}
+
+		for (const d1 of distances) {
+			for (const d2 of distances) {
+				if (d1 * 2 === d2) {
+					console.dir({ grouped, d1, d2 }, { depth: 3 });
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 
 (function () {
 	const raw = fs.readFileSync("sample-data.txt").toString();
@@ -102,10 +136,9 @@ function getDistanceBetweenNodes(nodeA: Node, nodeB: Node): number {}
 	//const nodes = getNodes(grid);
 	for (let x = 0; x < grid.length; x++) {
 		for (let y = 0; y < grid[0].length; y++) {
-			const sameFrequencyNodes = getNodesInLine(grid, x, y);
-			if (sameFrequencyNodes.length) {
-				console.dir({ x, y, sameFrequencyNodes }, { depth: 3 });
-			}
+			const nodesInLine = getNodesInLine(grid, x, y);
+			const grouped = groupNodesByFrequency(nodesInLine);
+			if (isAntiNode(grouped)) console.log(`Anti-node at ${x},${y}`);
 		}
 	}
 })();
