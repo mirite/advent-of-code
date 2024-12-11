@@ -28,9 +28,10 @@ function defrag(parsed: string, lastID: number): string {
 				const blockSize = String(lastID).length;
 				const block = parsed.substring(j - blockSize, j);
 				output += block;
-				console.log({ block, j, blockSize, lastID });
+				//		console.log({ block, j, blockSize, lastID });
 				j -= blockSize;
-				const peek = parsed.substring(j - blockSize, blockSize);
+				const peek = parsed[j - 1];
+				if (peek === ".") lastID--;
 				break;
 			}
 		}
@@ -40,8 +41,9 @@ function defrag(parsed: string, lastID: number): string {
 
 function getCheckSum(defragged: string): number {
 	let sum = 0;
-	for (let i = 0; i < defragged.length; i++)
-		sum += i * Number.parseInt(defragged[i]);
+	for (let i = 0; i < defragged.length; i++) {
+		if (defragged[i] !== ".") sum += i * Number.parseInt(defragged[i]);
+	}
 	return sum;
 }
 
@@ -51,6 +53,5 @@ function getCheckSum(defragged: string): number {
 		.toString();
 	const { parsed, lastID } = parse(raw);
 	const defragged = defrag(parsed, lastID);
-	console.log(defragged);
 	console.log(getCheckSum(defragged));
 })();
