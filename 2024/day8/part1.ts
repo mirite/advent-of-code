@@ -2,7 +2,6 @@ import fs from "node:fs";
 
 type Node = { frequency: string; x: number; y: number };
 type Grid = (null | Node[])[][];
-type NodeWithDistance = Node & { distance: number };
 
 function readGrid(raw: string): Grid {
 	let output: Grid = [];
@@ -26,17 +25,6 @@ function readGrid(raw: string): Grid {
 	}
 	return output;
 }
-
-const vectors = [
-	{ dx: -1, dy: 1 },
-	{ dx: 0, dy: 1 },
-	{ dx: 1, dy: 1 },
-	{ dx: 1, dy: 0 },
-	{ dx: 1, dy: -1 },
-	{ dx: 0, dy: -1 },
-	{ dx: -1, dy: -1 },
-	{ dx: -1, dy: 0 },
-];
 
 function getNodes(grid: Grid): Node[] {
 	const results: Node[] = [];
@@ -62,45 +50,11 @@ function printGrid(grid: Grid): void {
 	}
 	console.log("  0 1 2 3 4 5 6 7 8 9 1011\n" + lines.join("\n"));
 }
-function getNodesInLine(
-	grid: Grid,
-	xCoord: number,
-	yCoord: number,
-): NodeWithDistance[] {
-	const width = grid.length;
-	const height = grid[0].length;
-	const output: NodeWithDistance[] = [];
-	for (const vector of vectors) {
-		const nodesOnLine: NodeWithDistance[] = [];
-		let x = xCoord + vector.dx;
-		let y = yCoord + vector.dy;
-		let i = 0;
-		while (
-			x + vector.dx > 0 &&
-			x + vector.dx < width &&
-			y + vector.dy > 0 &&
-			y + vector.dy < height
-		) {
-			i++;
-			const current = grid[x][y];
-			if (current) {
-				for (const nodeInCell of current) {
-					nodesOnLine.push({ ...nodeInCell, distance: i });
-				}
-			}
-			x += vector.dx;
-			y += vector.dy;
-		}
-		output.push(...nodesOnLine);
-	}
 
-	return output;
-}
-
-function groupNodesByFrequency(
-	nodesInLine: NodeWithDistance[],
-): Record<string, NodeWithDistance[]> {
-	const grouped: Record<string, NodeWithDistance[]> = {};
+function groupNodesByFrequency<T extends Node>(
+	nodesInLine: T[],
+): Record<string, T[]> {
+	const grouped: Record<string, T[]> = {};
 	for (const node of nodesInLine) {
 		if (!grouped[node.frequency]) {
 			grouped[node.frequency] = [];
@@ -110,40 +64,70 @@ function groupNodesByFrequency(
 	return grouped;
 }
 
-function isAntiNode(grouped: Record<string, NodeWithDistance[]>): boolean {
-	for (const frequencySet of Object.values(grouped)) {
-		const distances: number[] = [];
-		for (const node of frequencySet) {
-			distances.push(node.distance);
-		}
+function getAntiNodeLocations(
+	node: Node,
+	grouped: Record<string, Node[]>,
+	width: number,
+	height: number,
+): [number, number][] {
+	const { x, y, frequency } = node;
+	const sameFrequency = grouped[frequency];
 
-		for (const d1 of distances) {
-			for (const d2 of distances) {
-				if (d1 * 2 === d2) {
-					console.dir({ grouped, d1, d2 }, { depth: 3 });
-					return true;
-				}
-			}
+	const antiNodes: [number, number][] = [];
+	for (const otherNode of sameFrequency) {
+		const { x: x2, y: y2 } = otherNode;
+		if (y2 === y && x2 === x) {
+			continue;
 		}
+		const dy = y2 - y;
+		const dx = x2 - x;
+		const distanceBetween = Math.sqrt(
+			Math.pow(y2 - y, 2) + Math.pow(x2 - x, 2),
+		);
+
+		// Distance between from x1,y1
+		const anX = x - dx;
+		const anY = y - dy;
+		if (anX >= 0 && anX < width && anY >= 0 && anY < height)
+			antiNodes.push([anX, anY]);
+
+		console.log({ x, y, x2, y2, dx, dy, distanceBetween });
 	}
-	return false;
+	return antiNodes;
 }
 
+function getUniques(antiNodes: [number, number][]): [number, number][] {
+	let output: [number, number][] = [];
+	outer: for (const node of antiNodes) {
+		for (const existing of output) {
+			if (existing[0] === node[0] && existing[1] === node[1]) continue outer;
+		}
+		output.push(node);
+	}
+	return output;
+}
 (function () {
-	const raw = fs.readFileSync("sample-data.txt").toString();
+	const raw = fs.readFileSync("data.txt").toString();
 	const grid = readGrid(raw);
-	printGrid(grid);
+	const nodes = getNodes(grid);
+	const grouped = groupNodesByFrequency(nodes);
+
 	const gridWithAntiNodes = structuredClone(grid);
-	//const nodes = getNodes(grid);
-	for (let x = 0; x < grid.length; x++) {
-		for (let y = 0; y < grid[0].length; y++) {
-			const nodesInLine = getNodesInLine(grid, x, y);
-			const grouped = groupNodesByFrequency(nodesInLine);
-			if (isAntiNode(grouped)) {
-				if (!gridWithAntiNodes[x][y]) gridWithAntiNodes[x][y] = [];
-				gridWithAntiNodes[x][y]?.push({ x, y, frequency: "#" });
-			}
+	const antiNodes: [number, number][] = [];
+	for (const node of nodes) {
+		const an = getAntiNodeLocations(node, grouped, grid.length, grid[0].length);
+		antiNodes.push(...an);
+		for (const antiNode of an) {
+			if (!gridWithAntiNodes[antiNode[0]][antiNode[1]])
+				gridWithAntiNodes[antiNode[0]][antiNode[1]] = [];
+			gridWithAntiNodes[antiNode[0]][antiNode[1]]?.push({
+				frequency: "#",
+				x: antiNode[0],
+				y: antiNode[1],
+			});
 		}
 	}
+	const uniques = getUniques(antiNodes);
+	console.log(uniques.length);
 	printGrid(gridWithAntiNodes);
 })();
