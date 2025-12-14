@@ -12,6 +12,7 @@ const replacements = [
 	["nine", "9"],
 ];
 
+/** @param raw */
 function replaceStrings(raw: string): string {
 	for (let i = 0; i < raw.length; i++) {
 		const sliding = raw.substring(i, i + 5);

@@ -1,4 +1,5 @@
 import fs from "node:fs";
+
 const lines = fs.readFileSync("day5-data.txt").toString().split("\n");
 type Rule = [number, number];
 const rules: Rule[] = [];
@@ -15,24 +16,7 @@ for (const line of lines) {
 		rules.push([Number.parseInt(split[0]), Number.parseInt(split[1])]);
 	}
 }
-function sumArray(arr: number[]) {
-	return arr.reduce((acc, curr) => curr + acc, 0);
-}
-function getApplicableRules(update: Update): Rule[] {
-	return rules.filter(([a, b]) => update.includes(a) && update.includes(b));
-}
-
-function testApplicableRule(update: Update, rule: Rule): boolean {
-	return (
-		update.findIndex((i) => i === rule[1]) >
-		update.findIndex((i) => i === rule[0])
-	);
-}
-function testUpdate(update: Update): boolean {
-	const applicableRules = getApplicableRules(update);
-	return applicableRules.every((r) => testApplicableRule(update, r));
-}
-
+/** @param update */
 function fixUpdate(update: Update): Update {
 	const applicableRules = getApplicableRules(update);
 	let violations;
@@ -42,14 +26,39 @@ function fixUpdate(update: Update): Update {
 			break;
 		}
 		const violation = violations[0];
-		let index1 = update.indexOf(violation[0]);
-		let index2 = update.indexOf(violation[1]);
-		let temp = update[index1];
+		const index1 = update.indexOf(violation[0]);
+		const index2 = update.indexOf(violation[1]);
+		const temp = update[index1];
 		update[index1] = update[index2];
 		update[index2] = temp;
 	} while (violations.length > 1);
 
 	return update;
+}
+/** @param update */
+function getApplicableRules(update: Update): Rule[] {
+	return rules.filter(([a, b]) => update.includes(a) && update.includes(b));
+}
+
+/** @param arr */
+function sumArray(arr: number[]) {
+	return arr.reduce((acc, curr) => curr + acc, 0);
+}
+/**
+ * @param update
+ * @param rule
+ */
+function testApplicableRule(update: Update, rule: Rule): boolean {
+	return (
+		update.findIndex((i) => i === rule[1]) >
+		update.findIndex((i) => i === rule[0])
+	);
+}
+
+/** @param update */
+function testUpdate(update: Update): boolean {
+	const applicableRules = getApplicableRules(update);
+	return applicableRules.every((r) => testApplicableRule(update, r));
 }
 const incorrectlyOrdered = updates.filter((u) => !testUpdate(u));
 const fixed = incorrectlyOrdered.map(fixUpdate);

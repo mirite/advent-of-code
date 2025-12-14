@@ -1,31 +1,34 @@
 import fs from "node:fs";
 
-type CubeSet = { red: number; blue: number; green: number };
-type Game = { id: number; cubeSets: CubeSet[] };
+type CubeSet = { blue: number; green: number; red: number };
+type Game = { cubeSets: CubeSet[]; id: number };
 
 const Mode = {
-	ReadingId: 0,
-	StartingSet: 1,
-	ReadingQuantity: 2,
-	ReadingColour: 3,
 	BetweenSets: 4,
+	ReadingColour: 3,
+	ReadingId: 0,
+	ReadingQuantity: 2,
+	StartingSet: 1,
 };
 
-function isNumeral(char: string) {
-	return char >= "0" && char <= "9";
-}
-
+/** @param char */
 function isLetter(char: string) {
 	return char >= "a" && char <= "z";
 }
 
+/** @param char */
+function isNumeral(char: string) {
+	return char >= "0" && char <= "9";
+}
+
+/** @param raw */
 function parseGrid(raw: string): Game[] {
 	const games: Game[] = [];
 	let mode = Mode.ReadingId;
 	let buffer = "";
 	let colourBuffer = "";
-	let currentSet: CubeSet = { red: 0, blue: 0, green: 0 };
-	let currentGame: Game = { id: 0, cubeSets: [] };
+	let currentSet: CubeSet = { blue: 0, green: 0, red: 0 };
+	let currentGame: Game = { cubeSets: [], id: 0 };
 	for (let i = 0; i < raw.length; i++) {
 		const curr = raw[i];
 		if (mode === Mode.ReadingId) {
@@ -58,12 +61,12 @@ function parseGrid(raw: string): Game[] {
 					mode = Mode.ReadingQuantity;
 				} else {
 					currentGame.cubeSets.push(currentSet);
-					currentSet = { red: 0, green: 0, blue: 0 };
+					currentSet = { blue: 0, green: 0, red: 0 };
 					if (curr === ";") {
 						mode = Mode.StartingSet;
 					} else {
 						games.push(currentGame);
-						currentGame = { id: 0, cubeSets: [] };
+						currentGame = { cubeSets: [], id: 0 };
 						mode = Mode.ReadingId;
 					}
 				}
@@ -78,7 +81,7 @@ function parseGrid(raw: string): Game[] {
 	let sum = 0;
 
 	for (const game of parsed) {
-		let mins: CubeSet = { green: 0, red: 0, blue: 0 };
+		const mins: CubeSet = { blue: 0, green: 0, red: 0 };
 		for (const cubeSet of game.cubeSets) {
 			if (cubeSet.green > mins.green) mins.green = cubeSet.green;
 			if (cubeSet.red > mins.red) mins.red = cubeSet.red;

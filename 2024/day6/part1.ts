@@ -1,10 +1,14 @@
 import fs from "node:fs";
 
-type GuardPosition = [x: number, y: number, facing: 0 | 1 | 2 | 3];
-type Dimensions = { width: number; height: number };
 type Cell = [open: boolean, visited: boolean];
+type Dimensions = { height: number; width: number };
 type Grid = Cell[][];
+type GuardPosition = [x: number, y: number, facing: 0 | 1 | 2 | 3];
 
+/**
+ * @param guardPosition
+ * @param gridSize
+ */
 function inGrid(guardPosition: [x: number, y: number], gridSize: Dimensions) {
 	return (
 		guardPosition[0] >= 0 &&
@@ -14,10 +18,16 @@ function inGrid(guardPosition: [x: number, y: number], gridSize: Dimensions) {
 	);
 }
 
+/**
+ * @param x
+ * @param y
+ * @param grid
+ */
 function isObstacle(x: number, y: number, grid: Grid) {
 	return grid[y][x][0] === false;
 }
 
+/** @param dataString */
 function parseGrid(dataString: string): {
 	grid: Grid;
 	guardPosition: GuardPosition;
@@ -55,7 +65,7 @@ function parseGrid(dataString: string): {
 	const dataString = fs.readFileSync("data.txt").toString();
 	const { grid, guardPosition } = parseGrid(dataString);
 
-	const gridSize = { width: grid[0].length, height: grid.length };
+	const gridSize = { height: grid.length, width: grid[0].length };
 
 	while (true) {
 		let dx = 0;

@@ -1,4 +1,5 @@
 import fs from "node:fs";
+
 const rows = fs
 	.readFileSync("day2-data.txt")
 	.toString()
@@ -9,6 +10,7 @@ const reports = rows.map((row) =>
 );
 let sum = 0;
 
+/** @param row */
 function isSafeReport(row: number[]): boolean {
 	const ascending = row[1] > row[0];
 	for (let i = 0; i < row.length; i++) {

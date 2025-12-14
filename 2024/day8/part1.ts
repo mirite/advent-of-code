@@ -1,76 +1,21 @@
 import fs from "node:fs";
 
+type Grid = (Node[] | null)[][];
 type Node = { frequency: string; x: number; y: number };
-type Grid = (null | Node[])[][];
 
-function readGrid(raw: string): Grid {
-	let output: Grid = [];
-	let x = 0;
-	let y = 0;
-	for (let i = 0; i < raw.length; i++) {
-		if (raw[i] === "\n") {
-			y++;
-			x = 0;
-		} else {
-			let content: null | Node[] = null;
-			if (raw[i] !== ".") {
-				content = [{ x, y, frequency: raw[i] }];
-			}
-			if (!output[x]) {
-				output.push([]);
-			}
-			output[x][y] = content;
-			x++;
-		}
-	}
-	return output;
-}
-
-function getNodes(grid: Grid): Node[] {
-	const results: Node[] = [];
-	for (let x = 0; x < grid.length; x++) {
-		for (let y = 0; y < grid[x].length; y++) {
-			const current = grid[x][y];
-			if (current) results.push(...current);
-		}
-	}
-	return results;
-}
-
-function printGrid(grid: Grid): void {
-	let lines: string[] = [];
-	for (let x = 0; x < grid.length; x++) {
-		for (let y = 0; y < grid.length; y++) {
-			if (!lines[y]) {
-				lines.push(`${y}` + (y < 10 ? " " : ""));
-			}
-			const cell = grid[x][y];
-			lines[y] += (cell ? cell[0].frequency : "*") + " ";
-		}
-	}
-	console.log("  0 1 2 3 4 5 6 7 8 9 1011\n" + lines.join("\n"));
-}
-
-function groupNodesByFrequency<T extends Node>(
-	nodesInLine: T[],
-): Record<string, T[]> {
-	const grouped: Record<string, T[]> = {};
-	for (const node of nodesInLine) {
-		if (!grouped[node.frequency]) {
-			grouped[node.frequency] = [];
-		}
-		grouped[node.frequency].push(node);
-	}
-	return grouped;
-}
-
+/**
+ * @param node
+ * @param grouped
+ * @param width
+ * @param height
+ */
 function getAntiNodeLocations(
 	node: Node,
 	grouped: Record<string, Node[]>,
 	width: number,
 	height: number,
 ): [number, number][] {
-	const { x, y, frequency } = node;
+	const { frequency, x, y } = node;
 	const sameFrequency = grouped[frequency];
 
 	const antiNodes: [number, number][] = [];
@@ -91,18 +36,84 @@ function getAntiNodeLocations(
 		if (anX >= 0 && anX < width && anY >= 0 && anY < height)
 			antiNodes.push([anX, anY]);
 
-		console.log({ x, y, x2, y2, dx, dy, distanceBetween });
+		console.log({ distanceBetween, dx, dy, x, x2, y, y2 });
 	}
 	return antiNodes;
 }
 
+/** @param grid */
+function getNodes(grid: Grid): Node[] {
+	const results: Node[] = [];
+	for (let x = 0; x < grid.length; x++) {
+		for (let y = 0; y < grid[x].length; y++) {
+			const current = grid[x][y];
+			if (current) results.push(...current);
+		}
+	}
+	return results;
+}
+
+/** @param antiNodes */
 function getUniques(antiNodes: [number, number][]): [number, number][] {
-	let output: [number, number][] = [];
+	const output: [number, number][] = [];
 	outer: for (const node of antiNodes) {
 		for (const existing of output) {
 			if (existing[0] === node[0] && existing[1] === node[1]) continue outer;
 		}
 		output.push(node);
+	}
+	return output;
+}
+
+/** @param nodesInLine */
+function groupNodesByFrequency<T extends Node>(
+	nodesInLine: T[],
+): Record<string, T[]> {
+	const grouped: Record<string, T[]> = {};
+	for (const node of nodesInLine) {
+		if (!grouped[node.frequency]) {
+			grouped[node.frequency] = [];
+		}
+		grouped[node.frequency].push(node);
+	}
+	return grouped;
+}
+
+/** @param grid */
+function printGrid(grid: Grid): void {
+	const lines: string[] = [];
+	for (let x = 0; x < grid.length; x++) {
+		for (let y = 0; y < grid.length; y++) {
+			if (!lines[y]) {
+				lines.push(`${y}` + (y < 10 ? " " : ""));
+			}
+			const cell = grid[x][y];
+			lines[y] += (cell ? cell[0].frequency : "*") + " ";
+		}
+	}
+	console.log("  0 1 2 3 4 5 6 7 8 9 1011\n" + lines.join("\n"));
+}
+
+/** @param raw */
+function readGrid(raw: string): Grid {
+	const output: Grid = [];
+	let x = 0;
+	let y = 0;
+	for (let i = 0; i < raw.length; i++) {
+		if (raw[i] === "\n") {
+			y++;
+			x = 0;
+		} else {
+			let content: Node[] | null = null;
+			if (raw[i] !== ".") {
+				content = [{ frequency: raw[i], x, y }];
+			}
+			if (!output[x]) {
+				output.push([]);
+			}
+			output[x][y] = content;
+			x++;
+		}
 	}
 	return output;
 }

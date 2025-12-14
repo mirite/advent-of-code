@@ -1,4 +1,5 @@
 import fs from "node:fs";
+
 const rows = fs
 	.readFileSync("day2-data.txt")
 	.toString()

@@ -1,0 +1,6 @@
+dist
+.yarn/
+coverage
+yarn.lock
+*.txt
+

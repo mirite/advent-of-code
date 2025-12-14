@@ -1,10 +1,28 @@
 import fs from "node:fs";
 import { type } from "node:os";
+
 type Equation = [expected: number, constituants: number[]];
 type Equations = Equation[];
 type Operation = (typeof operations)[number];
 
 const rowPattern = /^(\d+): ([\d ]+)$/gm;
+/**
+ * @param a
+ * @param b
+ */
+function add(a: number, b: number) {
+	return a + b;
+}
+
+/**
+ * @param a
+ * @param b
+ */
+function multiply(a: number, b: number) {
+	return a * b;
+}
+
+/** @param raw */
 function parse(raw: string): Equations {
 	const output: Equations = [];
 	const lines = raw.matchAll(rowPattern);
@@ -18,16 +36,9 @@ function parse(raw: string): Equations {
 	return output;
 }
 
-function add(a: number, b: number) {
-	return a + b;
-}
-
-function multiply(a: number, b: number) {
-	return a * b;
-}
-
 const operations = [add, multiply] as const;
 
+/** @param length */
 function buildPossible(length: number): Operation[][] {
 	if (length === 0) return [];
 	const possibleSolutions: Operation[][] = []; // The items in operations should be arrays of operators equal to the number of gaps in the equation.
@@ -44,6 +55,7 @@ function buildPossible(length: number): Operation[][] {
 	return possibleSolutions;
 }
 
+/** @param equation */
 function getSolutionCount(equation: Equation): number {
 	const possibleSolutions = buildPossible(equation[1].length - 1);
 	let solutions = 0;

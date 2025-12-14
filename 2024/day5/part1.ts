@@ -1,4 +1,5 @@
 import fs from "node:fs";
+
 const lines = fs.readFileSync("day5-data.txt").toString().split("\n");
 type Rule = [number, number];
 const rules: Rule[] = [];
@@ -16,6 +17,7 @@ for (const line of lines) {
 	}
 }
 
+/** @param update */
 function testUpdate(update: Update): boolean {
 	const applicableRules = rules.filter(
 		([a, b]) => update.includes(a) && update.includes(b),

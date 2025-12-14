@@ -1,5 +1,7 @@
 import fs from "node:fs";
+
 const data = fs.readFileSync("day4-data.txt").toString();
+/** @param input */
 function parseGrid(input: string) {
 	const grid: string[][] = [];
 	let y = 0;
@@ -17,6 +19,31 @@ function parseGrid(input: string) {
 const target = ["M", "A", "S"];
 const deltas = [1, -1] as const;
 type Delta = (typeof deltas)[number];
+/**
+ * @param grid
+ * @param x
+ * @param y
+ */
+function findFromSquare(grid: string[][], x: number, y: number) {
+	const masesFromSquare: [number, number][] = [];
+	for (const dy of deltas) {
+		for (const dx of deltas) {
+			if (findWords(grid, x, y, dx, dy)) {
+				masesFromSquare.push([x + dx, y + dy]);
+			}
+		}
+	}
+	return masesFromSquare;
+}
+
+/**
+ * @param grid
+ * @param x
+ * @param y
+ * @param dx
+ * @param dy
+ * @param index
+ */
 function findWords(
 	grid: string[][],
 	x: number,
@@ -32,18 +59,6 @@ function findWords(
 		return false;
 	}
 	return findWords(grid, x + dx, y + dy, dx, dy, index + 1);
-}
-
-function findFromSquare(grid: string[][], x: number, y: number) {
-	const masesFromSquare: [number, number][] = [];
-	for (const dy of deltas) {
-		for (const dx of deltas) {
-			if (findWords(grid, x, y, dx, dy)) {
-				masesFromSquare.push([x + dx, y + dy]);
-			}
-		}
-	}
-	return masesFromSquare;
 }
 
 const parsedGrid = parseGrid(data);

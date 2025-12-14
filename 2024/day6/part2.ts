@@ -1,9 +1,14 @@
 import fs from "node:fs";
-type Direction = 0 | 1 | 2 | 3;
-type GuardPosition = [x: number, y: number, facing: Direction];
-type Dimensions = { width: number; height: number };
+
 type Cell = boolean;
+type Dimensions = { height: number; width: number };
+type Direction = 0 | 1 | 2 | 3;
 type Grid = Cell[][];
+type GuardPosition = [x: number, y: number, facing: Direction];
+/**
+ * @param guardPosition
+ * @param gridSize
+ */
 function inGrid(guardPosition: [x: number, y: number], gridSize: Dimensions) {
 	return (
 		guardPosition[0] >= 0 &&
@@ -13,10 +18,29 @@ function inGrid(guardPosition: [x: number, y: number], gridSize: Dimensions) {
 	);
 }
 
+/**
+ * @param x
+ * @param y
+ * @param grid
+ */
 function isObstacle(x: number, y: number, grid: Grid) {
 	return grid[y][x] === false;
 }
 
+/**
+ * @param guardPosition
+ * @param visited
+ */
+function isStuck(guardPosition: GuardPosition, visited: GuardPosition[]) {
+	return visited.some(
+		(p) =>
+			p[0] === guardPosition[0] &&
+			p[1] === guardPosition[1] &&
+			p[2] === guardPosition[2],
+	);
+}
+
+/** @param dataString */
 function parseGrid(dataString: string): {
 	grid: Grid;
 	guardPosition: GuardPosition;
@@ -51,22 +75,18 @@ function parseGrid(dataString: string): {
 	return { grid, guardPosition };
 }
 
-function isStuck(guardPosition: GuardPosition, visited: GuardPosition[]) {
-	return visited.some(
-		(p) =>
-			p[0] === guardPosition[0] &&
-			p[1] === guardPosition[1] &&
-			p[2] === guardPosition[2],
-	);
-}
-
+/**
+ * @param guardPosition
+ * @param grid
+ * @param includeValidation
+ */
 function solveGrid(
 	guardPosition: GuardPosition,
 	grid: Grid,
 	includeValidation = false,
-): boolean | [x: number, y: number][] {
+): [x: number, y: number][] | boolean {
 	const visited: GuardPosition[] = [[...guardPosition]];
-	const gridSize = { width: grid[0].length, height: grid.length };
+	const gridSize = { height: grid.length, width: grid[0].length };
 
 	while (true) {
 		let dx = 0;
