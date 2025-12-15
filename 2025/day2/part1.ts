@@ -1,17 +1,60 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+/**
+ * Calculate the sum of invalid IDs in the given ranges.
+ *
+ * @param ranges The ranges of IDs.
+ * @returns The sum of invalid IDs.
+ */
 function getInvalidSum(ranges: string[]): { sum: number } {
-	return { sum: 0 };
+	let sum = 0;
+	for (const range of ranges) {
+		const rangeParts = range
+			.split("-")
+			.map((part) => Number.parseInt(part.trim()));
+		const { sum: rangeSum } = getInvalidSumInRange(rangeParts);
+		sum += rangeSum;
+	}
+	return { sum };
 }
+
+/**
+ * Sum invalid IDs in range.
+ *
+ * @param rangeParts The range parts [start, end].
+ * @returns The sum of invalid IDs.
+ */
+function getInvalidSumInRange(rangeParts: number[]) {
+	let sum = 0;
+	for (let id = rangeParts[0]; id <= rangeParts[1]; id++) {
+		const valid = isValidID(id);
+		if (!valid) {
+			sum += id;
+		}
+	}
+	return { sum };
+}
+/**
+ * Determine if an ID is valid.
+ *
+ * @param id The ID to check.
+ * @returns True if valid, false otherwise.
+ */
+function isValidID(id: number): boolean {
+	const idStr = id.toString();
+	if (idStr.length % 2 === 1) return true;
+	const mid = idStr.length / 2;
+	const left = idStr.substring(0, mid);
+	const right = idStr.substring(mid);
+	return left !== right;
+}
+
+/** Run with input data. */
 function run() {
 	const data = readFileSync(path.resolve("2025/day2/data.txt"), "utf-8").trim();
 	const { sum } = getInvalidSum(data.split(","));
 	console.log(`Invalid IDs sum: ${sum}`);
-}
-
-function isValidID(id: number): boolean {
-	return false;
 }
 
 if (import.meta.vitest) {
@@ -19,7 +62,7 @@ if (import.meta.vitest) {
 	it("should determine the validity of IDs", () => {
 		expect(isValidID(11)).toBe(false);
 		expect(isValidID(95)).toBe(true);
-		expect(isValidID(1000)).toBe(false);
+		expect(isValidID(1000)).toBe(true);
 		expect(isValidID(185185)).toBe(false);
 		expect(isValidID(1853185)).toBe(true);
 	});
