@@ -9,8 +9,27 @@ import path from "node:path";
  */
 function getFreshIngredients(lines: string[]): number {
 	const { ingredients, ranges } = parseInput(lines);
-	return 0;
+	let freshCount = 0;
+	for (const ingredient of ingredients) {
+		if (isFresh(ingredient, ranges)) {
+			freshCount++;
+		}
+	}
+	return freshCount;
 }
+/**
+ * @param ingredient
+ * @param ranges
+ */
+function isFresh(ingredient: number, ranges: [number, number][]): boolean {
+	for (const [start, end] of ranges) {
+		if (start <= ingredient && ingredient <= end) {
+			return true;
+		}
+	}
+	return false;
+}
+
 /** @param lines */
 function parseInput(lines: string[]) {
 	const output: { ingredients: number[]; ranges: [number, number][] } = {
@@ -40,6 +59,20 @@ function run() {
 if (import.meta.vitest) {
 	const { expect, it } = import.meta.vitest;
 
+	it("should determine if an ingredient is fresh", () => {
+		const ranges: [number, number][] = [
+			[3, 5],
+			[10, 14],
+			[16, 20],
+			[12, 18],
+		];
+		expect(isFresh(1, ranges)).toBe(false);
+		expect(isFresh(5, ranges)).toBe(true);
+		expect(isFresh(8, ranges)).toBe(false);
+		expect(isFresh(11, ranges)).toBe(true);
+		expect(isFresh(17, ranges)).toBe(true);
+		expect(isFresh(32, ranges)).toBe(false);
+	});
 	it("Should parse the input rows", () => {
 		expect(parseInput(["1-3", "4-5", "", "5", "6"])).toEqual({
 			ingredients: [5, 6],
